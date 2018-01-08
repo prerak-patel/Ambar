@@ -1,0 +1,22 @@
+{
+    "analyticsToken": "cda4b0bb11a1f32aed7564b08c455992",
+    "auth": "basic",
+    "mode": "ce",
+    "defaultLangAnalyzer": "ambar_en",
+    "pipelineCount": 1,
+    "crawlerCount": 1,
+    "nerEnabled": "true",
+    "dbCacheSizeGb": 2,
+    "uiLang": "en",
+    "esHeapSize": "1g",
+    "ocrPdfMaxPageCount": 5000,
+    "ocrPdfSymbolsPerPageThreshold": 100,
+    "dropboxClientId": "",
+    "dropboxredirectUri": "",
+    "host": "",
+    "protocol": "http",
+    "port": "80",
+    "dockerRepo": "ambar",
+    "dataPath": "/opt/ambar",
+    "preserveOriginals": "false"
+}

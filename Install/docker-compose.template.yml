@@ -1,0 +1,127 @@
+version: "2"
+networks:
+  internal_network:
+services:
+  webapi:
+    restart: always
+    networks:
+      - internal_network
+    image: ${DOCKER_REPO_URL}/ambar-webapi:latest
+    expose:
+      - "8080"
+    environment:
+      - dockerRepo=${DOCKER_REPO_URL}
+      - db=mongodb://db:27017/ambar_data
+      - fe=${FE_EXT_PROTOCOL}://${FE_EXT_HOST}:${FE_EXT_PORT}
+      - api=http://webapi:8080
+      - es=http://es:9200
+      - redis=webapi-cache
+      - rabbit=amqp://rabbit
+      - mode=${MODE}
+      - pipelineCount=${PIPELINE_COUNT}
+      - crawlerCount=${CRAWLER_COUNT}
+      - dropboxClientId=${DROPBOX_CLIENT_ID}
+      - dropboxRedirectUri=${DROPBOX_REDIRECT_URI}
+      - defaultLangAnalyzer=${DEFAULT_LANG_ANALYZER}
+      - analyticsToken=${ANALYTICS_TOKEN}
+      - auth=${AUTH_TYPE}
+      - ocrPdfMaxPageCount=${OCR_PDF_MAX_PAGE_COUNT}
+      - ocrPdfSymbolsPerPageThreshold=${OCR_PDF_SYMBOLS_PER_PAGE_THRESHOLD}
+      - showFilePreview=${SHOW_FILE_PREVIEW}
+    depends_on:
+      - db
+      - es
+      - webapi-cache
+      - proxy
+      - rabbit
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  webapi-cache:
+    restart: always
+    image: redis:alpine   
+    networks:
+      - internal_network    
+    expose:
+      - "6379"
+    ports:
+      - "6379:6379" 
+    mem_limit: ${WEBAPI_CACHE_SIZE} 
+  proxy:
+    image: ${DOCKER_REPO_URL}/ambar-proxy:latest
+    networks:
+      - internal_network
+    restart: always
+    environment:
+      - API_EXT_PORT=${API_EXT_PORT}
+      - FE_EXT_PORT=${FE_EXT_PORT}
+    expose:
+      - ${FE_EXT_PORT}
+      - ${API_EXT_PORT}
+    ports:
+      - "${FE_EXT_PORT}:${FE_EXT_PORT}"
+      - "${API_EXT_PORT}:${API_EXT_PORT}"
+  frontend:
+    image: ${DOCKER_REPO_URL}/ambar-frontend:latest
+    networks:
+      - internal_network
+    depends_on:
+      - webapi
+    expose:
+      - "80"
+    restart: always
+    environment:
+      - api=${API_EXT_PROTOCOL}://${API_EXT_HOST}:${API_EXT_PORT}
+  db:
+    restart: always
+    image: ${DOCKER_REPO_URL}/ambar-mongodb:latest
+    networks:
+      - internal_network
+    environment:
+      - cacheSizeGB=${DB_CACHE_SIZE_GB}
+    volumes:
+      - ${DB_PATH}:/data/db
+    expose:
+      - "27017"
+    ports:
+      - "27017:27017"
+  es:
+    image: ${DOCKER_REPO_URL}/ambar-es:latest
+    networks:
+      - internal_network
+    restart: always
+    expose:
+      - "9200"
+    ports:
+      - "9200:9200"
+    environment:
+      - cluster.name=ambar-es
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - security.manager.enabled=false
+      - "ES_JAVA_OPTS=-Xms${ES_HEAP_SIZE} -Xmx${ES_HEAP_SIZE}"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1  
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: ${ES_CONTAINER_SIZE}
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ${ES_PATH}:/usr/share/elasticsearch/data
+  rabbit:
+    image: ${DOCKER_REPO_URL}/ambar-rabbit:latest
+    networks:
+      - internal_network
+    hostname: rabbit
+    expose:
+      - "15672"
+      - "5672"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ${RABBIT_PATH}:/var/lib/rabbitmq
+
