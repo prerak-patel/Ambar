@@ -50,9 +50,9 @@ class SideMenu extends Component {
                         onTouchTap={() => setSearchResultView(constants.DETAILED_VIEW)}
                     />
                     <StyledListItem
-                        primaryText={localization.searchPage.tableViewLabel}
-                        style={{ fontWeight: searchView === constants.TABLE_VIEW ? 'bold' : 'normal' }}
-                        onTouchTap={() => setSearchResultView(constants.TABLE_VIEW)}
+                        primaryText={localization.searchPage.detailedViewLabel}
+                        style={{ fontWeight: searchView === constants.DETAILED_VIEW ? 'bold' : 'normal' }}
+                        onTouchTap={() => setSearchResultView(constants.DETAILED_VIEW)}
                     />
                     <StyledListItem
                         primaryText={localization.searchPage.folderViewLabel}
