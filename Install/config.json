@@ -16,7 +16,7 @@
     "host": "localhost",
     "protocol": "http",
     "port": "80",
-    "dockerRepo": "ambar",
+    "dockerRepo": "Ambar",
     "dataPath": "~/Downloads/ambar",
     "preserveOriginals": "false"
 }

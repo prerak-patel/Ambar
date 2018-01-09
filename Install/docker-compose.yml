@@ -1,7 +1,7 @@
 version: "2.1"
 networks:
   internal_network:
-services:      
+services:
   db:
     restart: always
     networks:
@@ -30,7 +30,7 @@ services:
     ulimits:
       memlock:
         soft: -1
-        hard: -1  
+        hard: -1
       nofile:
         soft: 65536
         hard: 65536
@@ -62,7 +62,7 @@ services:
     expose:
       - "6379"
     ports:
-      - "6379:6379" 
+      - "6379:6379"
   webapi:
     depends_on:
       redis:
@@ -79,6 +79,8 @@ services:
     image: ${dockerRepo}/ambar-webapi:latest
     expose:
       - "8080"
+    ports:
+      - "8080:8080"
     environment:
       - dockerRepo=${dockerRepo}
       - db=mongodb://db:27017/ambar_data
@@ -106,7 +108,7 @@ services:
     depends_on:
       webapi:
         condition: service_healthy
-    image: ${dockerRepo}/ambar-frontend:latest
+    image: ${dockerRepo}/FrontEnd
     restart: always
     networks:
       - internal_network
@@ -125,9 +127,6 @@ services:
     environment:
       - PORT=${port}
     expose:
-      - ${port}           
+      - ${port}
     ports:
       - "${port}:${port}"
-
-  
-  
